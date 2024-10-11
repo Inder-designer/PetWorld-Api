@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
 const connectDatabase = () => {
+  console.log("handleDb");
   mongoose
-    .connect("mongodb+srv://Inder-07k:Inder12071999@ivar-07k.upggqdk.mongodb.net/Ecommerce?retryWrites=true&w=majority", {
+    .connect("mongodb+srv://Inder-07k:Inder12071999@ivar-07k.upggqdk.mongodb.net/Ecomerce?retryWrites=true&w=majority", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
