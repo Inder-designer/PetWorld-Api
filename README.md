@@ -1,5 +1,3 @@
-# MERN E-COMMERCE TUTORIAL
-
 Hi! My name is **Bhupinder Singh**
 
 # Install Dependencies
@@ -29,5 +27,3 @@ CLOUDINARY_NAME
 CLOUDINARY_API_KEY
 CLOUDINARY_API_SECRET
 _fill each filed with your info respectively_
-
-## Author
