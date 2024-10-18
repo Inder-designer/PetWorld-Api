@@ -11,12 +11,6 @@ process.on("uncaughtException", (err) => {
 });
 
 dotenv.config({path:"backend/config/config.env"})
-// Config
-// if (process.env.NODE_ENV !== "PRODUCTION") {
-//   require("dotenv").config({ path: "backend/config/config.env" });
-// }
-
-// Connecting to database
 connectDatabase();
 
 cloudinary.config({
