@@ -54,7 +54,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHander("Invalid email or password", 401));
   }
 
-  sendToken(user, 200, res);
+  sendToken(user, 200, req, res);
 });
 
 // Logout User
