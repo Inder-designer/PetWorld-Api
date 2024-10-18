@@ -34,7 +34,7 @@ app.use(
     cookie: {
       secure: true, // Use secure cookies in production
       httpOnly: true, // Prevent client-side JS from accessing cookies
-      sameSite: none, // SameSite for cross-site cookies in production
+      sameSite: "none", // SameSite for cross-site cookies in production
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
