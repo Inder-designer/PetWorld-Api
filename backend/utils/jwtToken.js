@@ -3,6 +3,9 @@
 const sendToken = (user, statusCode, res) => {
   const token = user.getJWTToken();
 
+  // Save token in session as well
+  req.session.token = token;
+  
   // options for cookie
   const options = {
     expires: new Date(

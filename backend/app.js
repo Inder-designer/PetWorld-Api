@@ -6,11 +6,12 @@ const fileUpload = require("express-fileupload");
 const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv")
+const session = require("express-session");
 
 const errorMiddleware = require("./middleware/error");
 
 // Config
-dotenv.config({path:"backend/config/config.env"})
+dotenv.config({ path: "backend/config/config.env" })
 
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
@@ -21,9 +22,23 @@ app.use(fileUpload());
 // CORS Middleware 
 app.use(cors({
   origin: "http://localhost:3000", // Replace with your frontend URL
+  methods: ['GET', 'HEAD', 'PUT', 'POST', 'OPTIONS', 'DELETE',],
   credentials: true
 }));
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true, // Use secure cookies in production
+      httpOnly: true, // Prevent client-side JS from accessing cookies
+      sameSite: none, // SameSite for cross-site cookies in production
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
+  })
+);
 
 // Route Imports
 const product = require("./routes/productRoute");
