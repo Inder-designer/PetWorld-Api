@@ -4,7 +4,17 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
-  let token = req.cookies.token || req.session.token || req.headers.authorization || req.headers.authorization.split(' ')[1];
+  let token;
+
+  // Check for token in cookies, session, or Authorization header
+  if (req.cookies.token) {
+    token = req.cookies.token;
+  } else if (req.session.token) {
+    token = req.session.token;
+  } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    // Ensure the Authorization header exists and starts with "Bearer"
+    token = req.headers.authorization.split(' ')[1];
+  }
 
   if (!token) {
     return next(new ErrorHander("Please Login to access this resource", 401));
