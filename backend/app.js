@@ -22,7 +22,7 @@ app.use(
     keys: ["Petworld"],
     maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
     secure: false, // Set true in production for HTTPS only
-    sameSite: "none", // Prevents cookies from being sent with cross-site requests
+    sameSite: "lax", // Prevents cookies from being sent with cross-site requests
   })
 );
 app.use(cookieParser());
