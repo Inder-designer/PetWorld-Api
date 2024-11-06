@@ -100,28 +100,31 @@ exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
 // Get Filtered Products
 exports.getFilteredProducts = catchAsyncErrors(async (req, res, next) => {
   const { mainCategory } = req.params; // Get mainCategory from URL parameters
-  console.log(mainCategory);
+  console.log("Main Category:", mainCategory);
+
   const {
     category,
     type,
     ratings,
     price,
-    lifeStage,
+    stock,
+    ...restQueryParams // Capture remaining dynamic query parameters (attributes)
   } = req.query;
-  console.log(req.query);
+
+  console.log("Query Params:", req.query);
 
   let query = {
-    "categories.level0": new RegExp(mainCategory, "i"), // Always filter by mainCategory
+    "categories.level0.name": new RegExp(mainCategory, "i"), // Always filter by mainCategory
   };
 
-  // Filter by subCategory (case-insensitive)
+  // Filter by level1 category (subCategory) (case-insensitive)
   if (category) {
-    query["categories.level1"] = new RegExp(category, "i");
+    query["categories.level0.level1.name"] = new RegExp(category, "i");
   }
 
-  // Filter by type (case-insensitive)
+  // Filter by level2 category (type) (case-insensitive)
   if (type) {
-    query["categories.level2"] = new RegExp(type, "i");
+    query["categories.level0.level1.level2.name"] = new RegExp(type, "i");
   }
 
   // Filter by ratings
@@ -130,18 +133,43 @@ exports.getFilteredProducts = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Filter by price
-  if (price) {
-    const priceRange = price.split(',');
-    query.price = {
-      $gte: Number(priceRange[0]),
-      $lte: Number(priceRange[1]),
-    };
+  if (price && typeof price === 'object') {
+    // Ensure price is an object containing 'gte' and 'lte'
+    if (price.gte !== undefined && price.lte !== undefined) {
+      query.price = {
+        $gte: Number(price.gte),
+        $lte: Number(price.lte),
+      };
+    }
   }
 
-  // Filter by life stage (case-insensitive)
-  if (lifeStage) {
-    query.lifeStage = { $in: lifeStage.split(',').map(stage => new RegExp(stage, "i")) };
+  // Filter by stock (greater than or equal to provided value)
+  if (stock) {
+    query.Stock = { $gte: Number(stock) };
   }
+
+  // Handle dynamic attributes
+  Object.keys(restQueryParams).forEach((param) => {
+    const attributeName = param.replace(/\+/g, ' '); // Handle spaces in the attribute name, e.g., "life+stage" -> "life stage"
+    const attributeValues = Array.isArray(restQueryParams[param])
+      ? restQueryParams[param]
+      : [restQueryParams[param]]; // Ensure it's an array
+
+    // If attributeValues is a string, split it
+    const valuesArray = attributeValues[0].split('%'); // Use % as a separator for multiple values
+
+    if (attributeName && valuesArray.length) {
+      // Build the query to match the attributes field
+      query["attributes"] = {
+        $elemMatch: {
+          name: new RegExp(attributeName, "i"), // Match attribute name (e.g., "Life Stage")
+          values: { $in: valuesArray.map(val => new RegExp(val, "i")) } // Match attribute values (e.g., "spicy", "sweet")
+        }
+      };
+    }
+  });
+
+  console.log("Final Query:", JSON.stringify(query, null, 2)); // Log the final query for debugging
 
   const products = await Product.find(query);
 
@@ -151,6 +179,9 @@ exports.getFilteredProducts = catchAsyncErrors(async (req, res, next) => {
     productsCount: products.length,
   });
 });
+
+
+
 
 // Get All Product (Admin)
 exports.getAdminProducts = catchAsyncErrors(async (req, res, next) => {
@@ -299,7 +330,7 @@ exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
     comment,
     title,
   };
-
+  console.log(review);
   const product = await Product.findById(productId);
 
   const isReviewed = product.reviews.find(
@@ -344,6 +375,34 @@ exports.getProductReviews = catchAsyncErrors(async (req, res, next) => {
     reviews: product.reviews,
   });
 });
+
+// get user submitted products Review
+exports.getProductsReviewedByUser = catchAsyncErrors(async (req, res, next) => {
+  // console.log(req.user._id);
+  const userId = req.user._id;
+
+  // Find products reviewed by the user
+  const products = await Product.find({
+    "reviews.user": userId
+  })
+
+  // Filter reviews to only include the current user's reviews
+  const userReviewedProducts = products.map((product) => ({
+    productId: product._id,
+    name: product.name,
+    image: product.images[0].url,
+    rating: product.ratings,
+    userReview: product.reviews.find(
+      (review) => review.user.toString() === userId.toString()
+    )
+  }));
+
+  res.status(200).json({
+    success: true,
+    reviews: userReviewedProducts,
+  });
+});
+
 
 // Delete Review
 exports.deleteReview = catchAsyncErrors(async (req, res, next) => {

@@ -18,7 +18,7 @@ exports.addCart = catchAsyncErrors(async (req, res, next) => {
     // Find the user's cart
     let cart = await Cart.findOne({ user: req.user.id });
 
-    const maxAllowedQuantity = Math.min(existProduct.Stock, existProduct.orderLimit);
+    const maxAllowedQuantity = existProduct.orderLimit;
     let message;
 
     // If the cart does not exist, create a new one

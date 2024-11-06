@@ -15,7 +15,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     // Ensure the Authorization header exists and starts with "Bearer"
     token = req.headers.authorization.split(' ')[1];
   }
-
+console.log("token:",token);
   if (!token) {
     return next(new ErrorHander("Please Login to access this resource", 401));
   }
@@ -27,6 +27,7 @@ exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.authorizeRoles = (...roles) => {
+  // console.log(req.user.role);
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(

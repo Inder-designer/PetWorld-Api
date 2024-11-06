@@ -34,7 +34,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 // Login User
 exports.loginUser = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email,password,"Login");
+  console.log(email, password, "Login");
 
   // checking if user has given password and email both
 
@@ -64,6 +64,11 @@ exports.logout = catchAsyncErrors(async (req, res, next) => {
     httpOnly: true,
   });
 
+  res.cookie("session", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+
   res.status(200).json({
     success: true,
     message: "Logged Out",
@@ -78,7 +83,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHander("User not found", 404));
   }
 
-  console.log(process.env.SMPT_MAIL,process.env.SMPT_PASSWORD,process.env.SMPT_SERVICE,process.env.SMPT_PORT,process.env.SMPT_HOST);
+  console.log(process.env.SMPT_MAIL, process.env.SMPT_PASSWORD, process.env.SMPT_SERVICE, process.env.SMPT_PORT, process.env.SMPT_HOST);
   // Get ResetPassword Token
   const resetToken = user.getResetPasswordToken();
 
@@ -161,8 +166,8 @@ exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
 // update User password
 exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(req.user.id).select("+password");
-  console.log(user,"body");
-  
+  console.log(user, "body");
+
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
 
   if (!isPasswordMatched) {
