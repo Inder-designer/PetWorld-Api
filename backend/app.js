@@ -21,7 +21,7 @@ app.use(
     name: "session",
     keys: ["Petworld"],
     maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
-    secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
+    // secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
     sameSite: "strict", // Prevents cookies from being sent with cross-site requests
   })
 );
