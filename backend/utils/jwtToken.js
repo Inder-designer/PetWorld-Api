@@ -4,7 +4,8 @@ const sendToken = (user, statusCode, req, res) => {
   const token = user.getJWTToken();
 
   // Save token in session as well
-  req.session.token = token;
+  // req.session.token = token;
+  console.log(token,"token");
   
   // options for cookie
   const options = {

@@ -16,31 +16,28 @@ dotenv.config({ path: "backend/config/config.env" })
 
 app.use(express.json({ limit: '10mb' }));
 
-app.use(
-  cookieSession({
-    name: "session",
-    keys: ["Petworld"],
-    maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
-    secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
-    sameSite: "lax", // Prevents cookies from being sent with cross-site requests
-  })
-);
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(fileUpload());
-
 // CORS Middleware 
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:3000", // Replace with your frontend URL
+  origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:3000",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 app.use(
+  cookieSession({
+    name: "session",
+    keys: ["Petworld"],
+    maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
+    secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
+  })
+);
+
+// Express session setup (optional if not using express-session)
+app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'your-session-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -51,6 +48,11 @@ app.use(
     },
   })
 );
+
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(fileUpload());
 
 // Route Imports
 const product = require("./routes/productRoute");
