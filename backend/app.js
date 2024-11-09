@@ -12,7 +12,9 @@ const cookieSession = require("cookie-session");
 const errorMiddleware = require("./middleware/error");
 
 // Config
-dotenv.config({ path: "backend/config/config.env" })
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  require("dotenv").config({ path: "backend/config/config.env" });
+}
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -23,31 +25,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
-
-app.use(
-  cookieSession({
-    name: "session",
-    keys: ["Petworld"],
-    maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
-    secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
-  })
-);
-
-// Express session setup (optional if not using express-session)
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'your-session-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      httpOnly: true, // Prevent client-side JS from accessing cookies
-      sameSite: "none", // SameSite for cross-site cookies in production
-      maxAge: 24 * 60 * 60 * 1000 * 25, // 25 day
-    },
-  })
-);
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
