@@ -99,7 +99,7 @@ exports.getAllProducts = catchAsyncErrors(async (req, res, next) => {
 
 // Get Filtered Products
 exports.getFilteredProducts = catchAsyncErrors(async (req, res, next) => {
-  const { mainCategory } = req.params; // Get mainCategory from URL parameters
+  const mainCategory = req.params.mainCategory.replace(/\+/g, ' ');  // Get mainCategory from URL parameters
   console.log("Main Category:", mainCategory);
 
   const {

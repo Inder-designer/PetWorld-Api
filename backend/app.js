@@ -26,32 +26,32 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-app.use(
-  cookieSession({
-    name: "session",
-    keys: ["Petworld"],
-    maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
-    secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
-  })
-);
+// app.use(
+//   cookieSession({
+//     name: "session",
+//     keys: ["Petworld"],
+//     maxAge: 24 * 60 * 60 * 1000 * 25, // 25 days
+//     secure: process.env.NODE_ENV === "production", // Set true in production for HTTPS only
+//     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
+//   })
+// );
 
 // Express session setup (optional if not using express-session)
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'your-session-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      httpOnly: true, // Prevent client-side JS from accessing cookies
-      sameSite: "none", // SameSite for cross-site cookies in production
-      maxAge: 24 * 60 * 60 * 1000 * 25, // 25 day
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || 'your-session-secret',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+//       httpOnly: true, // Prevent client-side JS from accessing cookies
+//       sameSite: "none", // SameSite for cross-site cookies in production
+//       maxAge: 24 * 60 * 60 * 1000 * 25, // 25 day
+//     },
+//   })
+// );
 
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(fileUpload());

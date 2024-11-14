@@ -54,7 +54,7 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHander("Invalid email or password", 401));
   }
 
-  sendToken(user, 200, req, res);
+  sendToken(user, 200, res);
 });
 
 // Logout User
@@ -88,10 +88,10 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
   //   "host"
   // )}/password/reset/${resetToken}`;
 
-  const resetPasswordUrl = `${NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:3000"}/password/reset/${resetToken}`;
+  const resetPasswordUrl = `${process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:3000"}/password/reset/${resetToken}`;
 
   const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
-
+  console.log(resetPasswordUrl);
   try {
     await sendEmail({
       email: user.email,
@@ -102,6 +102,7 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: `Email sent to ${user.email} successfully`,
+      url: resetPasswordUrl
     });
   } catch (error) {
     user.resetPasswordToken = undefined;
@@ -116,15 +117,19 @@ exports.forgotPassword = catchAsyncErrors(async (req, res, next) => {
 // Reset Password
 exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
   // creating token hash
+  console.log("Token in URL:", req.params.token);
   const resetPasswordToken = crypto
     .createHash("sha256")
     .update(req.params.token)
     .digest("hex");
 
+  console.log("reHashed Token in Database:", resetPasswordToken);
+
   const user = await User.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
+  console.log("User found:", user);
 
   if (!user) {
     return next(
@@ -134,11 +139,11 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
       )
     );
   }
-
   if (req.body.password !== req.body.confirmPassword) {
     return next(new ErrorHander("Password does not password", 400));
   }
 
+  console.log(req.body.password, req.body.confirmPassword);
   user.password = req.body.password;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
